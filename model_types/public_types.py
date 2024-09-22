@@ -1,5 +1,11 @@
 from typing import List, Dict, Union
 from pydantic import BaseModel
+from datetime import datetime
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
 
 
 class ResultTemplate(BaseModel):
@@ -10,7 +16,7 @@ class ResultTemplate(BaseModel):
     """
     code: int
     message: str
-    data: Union[Dict, List, None]
+    data: Union[Dict, List, Token, None]
 
 
 class UserRegister(BaseModel):
@@ -21,3 +27,10 @@ class UserRegister(BaseModel):
 class UserLogin(BaseModel):
     username: str
     password: str
+
+
+class UserEncryptDataToken(BaseModel):
+    username: str
+    timestamp: str
+    sign: str
+    exp: datetime
