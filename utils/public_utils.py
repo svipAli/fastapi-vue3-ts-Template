@@ -19,21 +19,14 @@ async def get_current_user(request: Request):
 async def util_register(register_info: UserRegister) -> ResultTemplate:
     register_info_data = register_info.__dict__
     register_info_data['password'] = password_encrypt(register_info_data['password'])
-    try:
-        await User(**register_info_data).save()
-        return ResultTemplate(
-            code=0,
-            message="注册成功",
-            data={
-                "username": register_info.username
-            }
-        )
-    except Exception as e:
-        return ResultTemplate(
-            code=-1,
-            message=str(e),
-            data=None
-        )
+    await User(**register_info_data).save()
+    return ResultTemplate(
+        code=0,
+        message="注册成功",
+        data={
+            "username": register_info.username
+        }
+    )
 
 
 async def util_login(login_info) -> ResultTemplate:
@@ -45,9 +38,22 @@ async def util_login(login_info) -> ResultTemplate:
             data=None
         )
     if await authenticate_user(user_data, login_info.password):
+        if user_data.status == 0:
+            return ResultTemplate(
+                code=0,
+                message="登录成功！",
+                data=await create_access_token(user_data)
+            )
+        else:
+            return ResultTemplate(
+                code=0,
+                message="账号已被禁用！",
+                data=await create_access_token(user_data)
+            )
+    else:
         return ResultTemplate(
             code=0,
-            message="登录成功！",
+            message="密码错误！",
             data=await create_access_token(user_data)
         )
 
